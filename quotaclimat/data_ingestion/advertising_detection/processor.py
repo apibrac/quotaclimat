@@ -33,6 +33,17 @@ from quotaclimat.data_ingestion.advertising_detection.e03_group_segments import 
 # Process already downloaded files, delete them and the end.
 
 
+def segment_audio_file(audio_file_path: str, start_epoch: float) -> list:
+    """Runs e02: segments an audio file and returns the list of Segment objects."""
+    return SegmentCreator().run(audio_file_path, start_epoch)
+
+
+def group_segments(segments_list: list) -> list:
+    """Runs e03: clusters repeated segments across multiple sources and returns groups."""
+    pipeline = SegmentGroupingPipeline()
+    return pipeline.run(segments_list)
+
+
 def process_audio(processing_task: ProcessingTask) -> bool:
     """Returns True if processing was cached (skipped), False if actually processed."""
     cache_path = (
@@ -45,12 +56,12 @@ def process_audio(processing_task: ProcessingTask) -> bool:
     if cache_path.exists():
         return True
     else:
-        segments = SegmentCreator().run(
+        segments = segment_audio_file(
             processing_task.audio_file_path, processing_task.start_date.timestamp()
         )
         cache_path.parent.mkdir(parents=True, exist_ok=True)
         with open(cache_path, "w", encoding="utf-8") as f:
-            json.dump([fp.to_dict() for fp in segments], f)
+            json.dump([seg.to_dict() for seg in segments], f)
         return False
 
 
