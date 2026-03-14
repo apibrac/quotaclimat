@@ -280,11 +280,7 @@ if __name__ == "__main__":
 
         pipeline = SegmentGroupingPipeline(
             similarity_threshold=0.05,
-            sr=22050,
             min_matching_hashes=1,
-            n_peaks_by_segment=5,
-            neighborhood_peaks_filter=15,
-            min_peak_amplitude=0.01,
         )
 
         groups = pipeline.run(segments_list)
